@@ -190,6 +190,31 @@ describe("New Transaction", function () {
 
   it("navigates to the new transaction form, selects a user and submits a transaction payment", function () {
     // The following line is meant to fail the test on purpose. You can remove it and update accordingly
-    cy.get("#fail-on-purpose").should("exist");
+    const request = {
+      amount: "95",
+      description: "Fancy Hotel 🏨",
+    };
+
+    cy.getBySelLike("new-transaction").click();
+    cy.wait("@allUsers");
+
+    cy.getBySelLike("user-list-item").contains(ctx.contact!.firstName).click({ force: true });
+    cy.visualSnapshot("User Search First Name Input");
+
+    cy.getBySelLike("amount-input").type(request.amount);
+    cy.getBySelLike("description-input").type(request.description);
+    cy.visualSnapshot("Amount and Description Input");
+    cy.getBySelLike("transaction-create-submit-payment").click();
+    cy.wait("@createTransaction");
+    cy.getBySel("alert-bar-success")
+      .should("be.visible")
+      .and("have.text", "Transaction Submitted!");
+    cy.visualSnapshot("Transaction Request Submitted Notification");
+
+    cy.getBySelLike("return-to-transactions").click();
+    cy.getBySelLike("personal-tab").click().should("have.class", "Mui-selected");
+
+    cy.getBySelLike("transaction-item").should("contain", request.description);
+    cy.visualSnapshot("Transaction Item Description in List");
   });
 });

@@ -113,6 +113,27 @@ describe("User Sign-up and Login", function () {
 
   it("should allow a visitor to sign-up, login, and logout", function () {
     // The following line is meant to fail the test on purpose. You can remove it and update accordingly
-    cy.get("#fail-on-purpose").should("exist");
+
+    const username = "testing";
+    const password = "testing";
+
+    cy.signup('Test1', 'Test2', username, password).then(
+      () => cy.login(username, password).then(
+        () => {
+          cy.getBySel("user-onboarding-next").click();
+          cy.getBySel("bankaccount-bankName-input").type("Chase");
+          cy.getBySel("bankaccount-routingNumber-input").type("072403473");
+          cy.getBySel("bankaccount-accountNumber-input").type("123456789");
+          cy.getBySel("bankaccount-submit").click();
+          cy.getBySel("user-onboarding-next").click();
+          cy.getBySel("sidenav-signout").click();
+          cy.location("pathname").should("equal", "/signin");
+          return;
+        }
+      )
+    );
+    // cy.database("find", "users").then((user: User) => {
+    //   cy.login(user.username, "s3cret", { rememberUser: true });
+    // });
   });
 });

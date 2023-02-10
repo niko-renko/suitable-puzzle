@@ -98,12 +98,17 @@ declare namespace Cypress {
     /**
      * Logs-in user by using UI
      */
-    login(username: string, password: string, loginOptions?: LoginOptions): void;
+    login(username: string, password: string, loginOptions?: LoginOptions): Chainable<any>;
+
+    signup(firstName: string, lastName: string, username: string, password: string): Chainable<any>;
+
+    createBankAccount(bankName: string, routingNumber: string, accountNumber: string): Chainable<any>;
 
     /**
      * Logs-in user by using API request
      */
     loginByApi(username: string, password?: string): Chainable<Response>;
+
 
     /**
      * Logs-in user by using Google API request

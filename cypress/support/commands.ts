@@ -39,6 +39,51 @@ Cypress.Commands.add("getBySelLike", (selector, ...args) => {
   return cy.get(`[data-test*=${selector}]`, ...args);
 });
 
+Cypress.Commands.add("signup", (firstName, lastName, username, password = Cypress.env("defaultPassword")) => {
+  const signupPath = "/signup";
+  const log = Cypress.log({
+    name: "signup",
+    displayName: "SIGN UP",
+    message: [`🔐 Signing Up | ${firstName} ${lastName} (${username})`],
+    // @ts-ignore
+    autoEnd: false,
+  });
+
+  cy.location("pathname", { log: false }).then((currentPath) => {
+    if (currentPath !== signupPath) {
+      cy.visit(signupPath);
+    }
+  });
+
+  cy.intercept("POST", "/users").as("signupUser");
+
+  cy.getBySel("signup-first-name").type(firstName);
+  cy.getBySel("signup-last-name").type(lastName);
+  cy.getBySel("signup-username").type(username);
+  cy.getBySel("signup-password").type(password);
+  cy.getBySel("signup-confirmPassword").type(password);
+  cy.getBySel("signup-submit").click();
+
+  log.snapshot("before");
+
+  cy.wait("@signupUser").then((signupUser: any) => {
+    log.set({
+      consoleProps() {
+        return {
+          firstName,
+          lastName,
+          username,
+          password,
+          userId: signupUser.response.statusCode !== 401 && signupUser.response.body.user.id,
+        };
+      },
+    });
+
+    log.snapshot("after");
+    log.end();
+  });
+});
+
 Cypress.Commands.add("login", (username, password, { rememberUser = false } = {}) => {
   const signinPath = "/signin";
   const log = Cypress.log({

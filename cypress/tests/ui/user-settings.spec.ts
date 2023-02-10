@@ -61,6 +61,14 @@ describe("User Settings", function () {
 
   it("updates first name, last name, email and phone number", function () {
     // The following line is meant to fail the test on purpose. You can remove it and update accordingly
-    cy.get("#fail-on-purpose").should("exist");
+    cy.intercept("POST", "/users/*").as("updateUser");
+
+    ["first", "last"].forEach((field) => cy.getBySelLike(`${field}Name-input`).clear().type("Abc"));
+    cy.getBySel("user-settings-email-input").clear().type("testing@gmail.com");
+    cy.getBySel("user-settings-phoneNumber-input").clear().type("1234569999");
+    cy.getBySel("user-settings-submit").should("not.be.disabled");
+    cy.getBySel("user-settings-submit").click();
+
+    cy.wait("@updateUser").then(({response: {statusCode}}) => expect(statusCode).to.equal(204));
   });
 });
